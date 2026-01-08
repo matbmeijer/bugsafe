@@ -262,11 +262,11 @@ def test_redaction_is_idempotent(text: str):
 def test_run_and_render_workflow(tmp_path):
     runner = CliRunner()
     bundle = tmp_path / "test.bugbundle"
-    
+
     # Run command
     result = runner.invoke(app, ["run", "-o", str(bundle), "echo", "hello"])
     assert result.exit_code == 0
-    
+
     # Render bundle
     result = runner.invoke(app, ["render", str(bundle)])
     assert "# Bug Report" in result.stdout
