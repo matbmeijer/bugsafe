@@ -2,6 +2,57 @@
 
 How releases are created and published.
 
+## Branching Strategy (Gitflow)
+
+We follow [Gitflow](https://nvie.com/posts/a-successful-git-branching-model/):
+
+```
+main ─────●────────●────────●──────── (production releases)
+          │        ↑        ↑
+          │        │        │
+develop ──●────●───●────●───●──────── (integration branch)
+               │        │
+               │        └── feature/new-pattern
+               └── feature/llm-output
+```
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | Production-ready code, tagged releases |
+| `develop` | Integration branch for features |
+| `feature/*` | New features (branch from `develop`) |
+| `hotfix/*` | Urgent fixes (branch from `main`) |
+| `release/*` | Release preparation (optional) |
+
+### Feature Development
+
+```bash
+# Start a feature
+git checkout develop
+git checkout -b feature/my-feature
+
+# Work on feature...
+git commit -m "feat: add feature"
+
+# Merge back to develop (via PR)
+git checkout develop
+git merge feature/my-feature
+```
+
+### Release Flow
+
+```bash
+# Prepare release from develop
+git checkout main
+git merge develop
+git tag -a v0.2.0 -m "Release v0.2.0"
+git push origin main v0.2.0
+
+# Sync develop with main
+git checkout develop
+git merge main
+```
+
 ## Overview
 
 Releases are **fully automated** via GitHub Actions when a tag is pushed.
