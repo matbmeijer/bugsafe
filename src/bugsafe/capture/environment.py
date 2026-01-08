@@ -11,13 +11,28 @@ from importlib.metadata import distributions
 from pathlib import Path
 from platform import platform, uname
 
-DEFAULT_ENV_ALLOWLIST: frozenset[str] = frozenset({
-    "PATH", "PYTHONPATH", "VIRTUAL_ENV", "CONDA_DEFAULT_ENV",
-    "LANG", "LC_ALL", "TZ", "TERM", "SHELL",
-    "PWD", "HOME",
-    "CI", "GITHUB_ACTIONS", "GITLAB_CI", "JENKINS_URL",
-    "TRAVIS", "CIRCLECI", "BUILDKITE",
-})
+DEFAULT_ENV_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        "PATH",
+        "PYTHONPATH",
+        "VIRTUAL_ENV",
+        "CONDA_DEFAULT_ENV",
+        "LANG",
+        "LC_ALL",
+        "TZ",
+        "TERM",
+        "SHELL",
+        "PWD",
+        "HOME",
+        "CI",
+        "GITHUB_ACTIONS",
+        "GITLAB_CI",
+        "JENKINS_URL",
+        "TRAVIS",
+        "CIRCLECI",
+        "BUILDKITE",
+    }
+)
 
 ENV_BLOCKLIST_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r".*PASSWORD.*", re.IGNORECASE),
@@ -28,17 +43,34 @@ ENV_BLOCKLIST_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r".*API.*", re.IGNORECASE),
 )
 
-ENV_BLOCKLIST: frozenset[str] = frozenset({
-    "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN",
-    "GITHUB_TOKEN", "GH_TOKEN", "GITLAB_TOKEN",
-    "DATABASE_URL", "REDIS_URL", "MONGO_URI",
-    "API_KEY", "SECRET_KEY", "PRIVATE_KEY",
-})
+ENV_BLOCKLIST: frozenset[str] = frozenset(
+    {
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_SESSION_TOKEN",
+        "GITHUB_TOKEN",
+        "GH_TOKEN",
+        "GITLAB_TOKEN",
+        "DATABASE_URL",
+        "REDIS_URL",
+        "MONGO_URI",
+        "API_KEY",
+        "SECRET_KEY",
+        "PRIVATE_KEY",
+    }
+)
 
 CI_INDICATORS: tuple[str, ...] = (
-    "CI", "GITHUB_ACTIONS", "GITLAB_CI", "JENKINS_URL",
-    "TRAVIS", "CIRCLECI", "BUILDKITE", "AZURE_PIPELINES",
-    "TEAMCITY_VERSION", "BITBUCKET_COMMIT",
+    "CI",
+    "GITHUB_ACTIONS",
+    "GITLAB_CI",
+    "JENKINS_URL",
+    "TRAVIS",
+    "CIRCLECI",
+    "BUILDKITE",
+    "AZURE_PIPELINES",
+    "TEAMCITY_VERSION",
+    "BITBUCKET_COMMIT",
 )
 
 
@@ -235,10 +267,12 @@ def _collect_packages(max_packages: int) -> tuple[list[PackageInfo], bool]:
             version = (
                 dist.metadata["Version"] if "Version" in dist.metadata else "unknown"
             )
-            packages.append(PackageInfo(
-                name=name or "unknown",
-                version=version or "unknown",
-            ))
+            packages.append(
+                PackageInfo(
+                    name=name or "unknown",
+                    version=version or "unknown",
+                )
+            )
 
             if len(packages) >= max_packages:
                 return packages, True

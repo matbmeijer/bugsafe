@@ -2,10 +2,7 @@
 
 import os
 import sys
-from pathlib import Path
 from unittest.mock import patch
-
-import pytest
 
 from bugsafe.capture.environment import (
     DEFAULT_ENV_ALLOWLIST,
@@ -109,17 +106,13 @@ class TestEnvVarsFiltering:
 
     def test_blocklist_patterns(self):
         with patch.dict(os.environ, {"MY_PASSWORD": "secret123"}):
-            config = EnvConfig(
-                env_allowlist=frozenset({"MY_PASSWORD", "PATH"})
-            )
+            config = EnvConfig(env_allowlist=frozenset({"MY_PASSWORD", "PATH"}))
             result = collect_environment(config)
             assert "MY_PASSWORD" not in result.env_vars
 
     def test_blocklist_explicit(self):
         with patch.dict(os.environ, {"AWS_SECRET_ACCESS_KEY": "xxx"}):
-            config = EnvConfig(
-                env_allowlist=frozenset({"AWS_SECRET_ACCESS_KEY"})
-            )
+            config = EnvConfig(env_allowlist=frozenset({"AWS_SECRET_ACCESS_KEY"}))
             result = collect_environment(config)
             assert "AWS_SECRET_ACCESS_KEY" not in result.env_vars
 
@@ -138,7 +131,10 @@ class TestGitInfo:
     def test_git_url_redaction(self):
         result = collect_environment()
         if result.git is not None and result.git.remote_url is not None:
-            assert "@" not in result.git.remote_url or "<REDACTED>" in result.git.remote_url
+            assert (
+                "@" not in result.git.remote_url
+                or "<REDACTED>" in result.git.remote_url
+            )
 
 
 class TestContainerDetection:

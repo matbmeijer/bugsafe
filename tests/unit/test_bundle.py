@@ -1,6 +1,5 @@
 """Unit tests for bundle module."""
 
-import json
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -11,7 +10,6 @@ from bugsafe.bundle.reader import (
     AttachmentNotFoundError,
     BundleCorruptError,
     BundleNotFoundError,
-    BundleSchemaError,
     SecurityError,
     get_attachment,
     list_attachments,
@@ -31,9 +29,6 @@ from bugsafe.bundle.schema import (
 )
 from bugsafe.bundle.writer import (
     AttachmentError,
-    BundleSizeError,
-    BundleWriteError,
-    ValidationResult,
     add_attachment,
     create_bundle,
     validate_bundle,
@@ -434,9 +429,7 @@ class TestEdgeCases:
         bundle_path = tmp_path / "test.bugbundle"
         create_bundle(BugBundle(), bundle_path)
 
-        final_name = add_attachment(
-            bundle_path, "file with spaces.txt", "content"
-        )
+        final_name = add_attachment(bundle_path, "file with spaces.txt", "content")
         assert " " not in final_name
 
     def test_path_traversal_in_attachment(self, tmp_path: Path):

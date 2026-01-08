@@ -33,7 +33,8 @@ def main(
     version: Annotated[
         bool,
         typer.Option(
-            "--version", "-v",
+            "--version",
+            "-v",
             callback=version_callback,
             is_eager=True,
             help="Show version and exit.",
@@ -138,8 +139,7 @@ def run(
         python_executable=env_snapshot.python_executable,
         platform=env_snapshot.platform,
         packages=[
-            PackageInfo(name=p.name, version=p.version)
-            for p in env_snapshot.packages
+            PackageInfo(name=p.name, version=p.version) for p in env_snapshot.packages
         ],
         env_vars=env_snapshot.env_vars,
         cwd=env_snapshot.cwd,
@@ -307,11 +307,13 @@ def inspect(
     console.print()
 
     if bundle.traceback:
-        console.print(Panel(
-            f"{bundle.traceback.exception_type}: {bundle.traceback.message}",
-            title="Error",
-            border_style="red",
-        ))
+        console.print(
+            Panel(
+                f"{bundle.traceback.exception_type}: {bundle.traceback.message}",
+                title="Error",
+                border_style="red",
+            )
+        )
         console.print()
 
     if bundle.environment:

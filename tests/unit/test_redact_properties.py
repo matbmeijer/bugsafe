@@ -1,9 +1,10 @@
 """Property-based tests for redaction module using Hypothesis."""
 
-from hypothesis import given, settings, strategies as st, assume
+from hypothesis import assume, given, settings
+from hypothesis import strategies as st
 
 from bugsafe.redact.engine import RedactionEngine, create_redaction_engine
-from bugsafe.redact.patterns import DEFAULT_PATTERNS, Priority
+from bugsafe.redact.patterns import DEFAULT_PATTERNS
 from bugsafe.redact.tokenizer import Tokenizer
 
 

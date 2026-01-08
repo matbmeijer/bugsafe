@@ -76,14 +76,16 @@ class RedactionReport:
         end: int = 0,
     ) -> None:
         """Add a redaction match to the report."""
-        self.matches.append(RedactionMatch(
-            original=original,
-            token=token,
-            category=category,
-            pattern_name=pattern_name,
-            start=start,
-            end=end,
-        ))
+        self.matches.append(
+            RedactionMatch(
+                original=original,
+                token=token,
+                category=category,
+                pattern_name=pattern_name,
+                start=start,
+                end=end,
+            )
+        )
         self.categories[category] = self.categories.get(category, 0) + 1
         self.patterns_used.add(pattern_name)
 

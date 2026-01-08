@@ -46,10 +46,9 @@ class TestRunCommand:
         assert result.duration_ms > 0
 
     def test_command_with_stderr(self):
-        result = run_command([
-            sys.executable, "-c",
-            "import sys; sys.stderr.write('error\\n')"
-        ])
+        result = run_command(
+            [sys.executable, "-c", "import sys; sys.stderr.write('error\\n')"]
+        )
         assert result.exit_code == 0
         assert "error" in result.stderr
 
@@ -65,49 +64,45 @@ class TestRunCommand:
 
     def test_timeout(self):
         config = CaptureConfig(timeout=1)
-        result = run_command([sys.executable, "-c", "import time; time.sleep(10)"], config)
+        result = run_command(
+            [sys.executable, "-c", "import time; time.sleep(10)"], config
+        )
         assert result.timed_out is True
         assert result.exit_code == -2
         assert result.signal_num in (signal.SIGTERM, signal.SIGKILL)
 
     def test_large_output_truncation(self):
         config = CaptureConfig(max_output_bytes=100)
-        result = run_command([
-            sys.executable, "-c",
-            "print('x' * 1000)"
-        ], config)
+        result = run_command([sys.executable, "-c", "print('x' * 1000)"], config)
         assert result.truncated_stdout is True
         assert "TRUNCATED" in result.stdout
 
     def test_ansi_stripping(self):
         config = CaptureConfig(preserve_ansi=False)
-        result = run_command([
-            sys.executable, "-c",
-            r"print('\x1b[31mred\x1b[0m')"
-        ], config)
+        result = run_command(
+            [sys.executable, "-c", r"print('\x1b[31mred\x1b[0m')"], config
+        )
         assert "\x1b[" not in result.stdout
         assert "red" in result.stdout
 
     def test_ansi_preservation(self):
         config = CaptureConfig(preserve_ansi=True)
-        result = run_command([
-            sys.executable, "-c",
-            r"print('\x1b[31mred\x1b[0m')"
-        ], config)
+        result = run_command(
+            [sys.executable, "-c", r"print('\x1b[31mred\x1b[0m')"], config
+        )
         assert "\x1b[31m" in result.stdout
 
     def test_cr_normalization(self):
         config = CaptureConfig(strip_cr=True)
-        result = run_command([
-            sys.executable, "-c",
-            r"print('line1\r\nline2')"
-        ], config)
+        result = run_command([sys.executable, "-c", r"print('line1\r\nline2')"], config)
         assert "\r\n" not in result.stdout
         assert "line1\nline2" in result.stdout
 
     def test_working_directory(self, tmp_path: Path):
         config = CaptureConfig(cwd=tmp_path)
-        result = run_command([sys.executable, "-c", "import os; print(os.getcwd())"], config)
+        result = run_command(
+            [sys.executable, "-c", "import os; print(os.getcwd())"], config
+        )
         assert result.exit_code == 0
         assert str(tmp_path) in result.stdout
 
@@ -150,10 +145,13 @@ class TestBinaryOutput:
     """Tests for binary output handling."""
 
     def test_binary_output_detected(self):
-        result = run_command([
-            sys.executable, "-c",
-            "import sys; sys.stdout.buffer.write(bytes(range(256)))"
-        ])
+        result = run_command(
+            [
+                sys.executable,
+                "-c",
+                "import sys; sys.stdout.buffer.write(bytes(range(256)))",
+            ]
+        )
         assert result.is_binary_stdout is True
 
     def test_utf8_output_not_binary(self):
@@ -170,18 +168,12 @@ class TestEdgeCases:
             run_command([])
 
     def test_multiline_output(self):
-        result = run_command([
-            sys.executable, "-c",
-            "print('line1\\nline2\\nline3')"
-        ])
+        result = run_command([sys.executable, "-c", "print('line1\\nline2\\nline3')"])
         lines = result.stdout.strip().split("\n")
         assert len(lines) == 3
 
     def test_unicode_output(self):
-        result = run_command([
-            sys.executable, "-c",
-            "print('emoji: 🎉 unicode: αβγ')"
-        ])
+        result = run_command([sys.executable, "-c", "print('emoji: 🎉 unicode: αβγ')"])
         assert "🎉" in result.stdout
         assert "αβγ" in result.stdout
 

@@ -4,11 +4,11 @@ import json
 import zipfile
 from pathlib import Path
 
-from hypothesis import given, settings, strategies as st, assume
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from bugsafe.bundle.reader import (
     BundleCorruptError,
-    BundleNotFoundError,
     BundleParseError,
     BundleSchemaError,
     SecurityError,
@@ -66,6 +66,7 @@ class TestMalformedBundle:
     def test_invalid_zip_content(self, data: bytes):
         """Reader handles invalid ZIP content gracefully."""
         import tempfile
+
         with tempfile.NamedTemporaryFile(suffix=".bugbundle", delete=False) as f:
             f.write(data)
             bundle_path = Path(f.name)
@@ -82,6 +83,7 @@ class TestMalformedBundle:
     def test_invalid_manifest_json(self, json_text: str):
         """Reader handles invalid JSON in manifest."""
         import tempfile
+
         with tempfile.NamedTemporaryFile(suffix=".bugbundle", delete=False) as f:
             bundle_path = Path(f.name)
 
@@ -100,6 +102,7 @@ class TestMalformedBundle:
     def test_arbitrary_json_schema(self, data: dict):
         """Reader handles arbitrary JSON that doesn't match schema."""
         import tempfile
+
         with tempfile.NamedTemporaryFile(suffix=".bugbundle", delete=False) as f:
             bundle_path = Path(f.name)
 
@@ -117,11 +120,14 @@ class TestMalformedBundle:
 class TestPathTraversal:
     """Fuzz tests for path traversal protection."""
 
-    @given(st.sampled_from(["../etc/passwd", "/../secret", "/etc/passwd", "..\\windows"]))
+    @given(
+        st.sampled_from(["../etc/passwd", "/../secret", "/etc/passwd", "..\\windows"])
+    )
     @settings(max_examples=10)
     def test_path_traversal_blocked(self, filename: str):
         """Path traversal attempts are blocked."""
         import tempfile
+
         with tempfile.NamedTemporaryFile(suffix=".bugbundle", delete=False) as f:
             bundle_path = Path(f.name)
 
@@ -186,6 +192,7 @@ class TestBundleRoundTrip:
     ):
         """Bundle round-trip preserves data."""
         import tempfile
+
         from bugsafe.bundle.schema import CaptureOutput
 
         bundle = BugBundle(

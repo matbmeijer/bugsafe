@@ -1,14 +1,11 @@
 """Unit tests for capture/traceback.py."""
 
-import pytest
-
 from bugsafe.capture.traceback import (
     Frame,
     ParsedTraceback,
     extract_syntax_error,
     extract_traceback,
 )
-
 
 SIMPLE_TRACEBACK = """\
 Traceback (most recent call last):

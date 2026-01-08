@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import pytest
 from typer.testing import CliRunner
 
 from bugsafe.cli import app
@@ -59,9 +58,7 @@ class TestRunCommand:
 
     def test_run_simple_command(self, tmp_path: Path):
         output_path = tmp_path / "test.bugbundle"
-        result = runner.invoke(
-            app, ["run", "echo", "hello", "-o", str(output_path)]
-        )
+        result = runner.invoke(app, ["run", "echo", "hello", "-o", str(output_path)])
         assert result.exit_code == 0
         assert output_path.exists()
         assert "Bundle created" in result.stdout
@@ -69,7 +66,16 @@ class TestRunCommand:
     def test_run_failing_command(self, tmp_path: Path):
         output_path = tmp_path / "test.bugbundle"
         result = runner.invoke(
-            app, ["run", "-o", str(output_path), "--", "python", "-c", "raise ValueError('test')"]
+            app,
+            [
+                "run",
+                "-o",
+                str(output_path),
+                "--",
+                "python",
+                "-c",
+                "raise ValueError('test')",
+            ],
         )
         assert result.exit_code == 0
         assert output_path.exists()
@@ -86,7 +92,8 @@ class TestRunCommand:
     def test_run_no_redact(self, tmp_path: Path):
         output_path = tmp_path / "test.bugbundle"
         result = runner.invoke(
-            app, ["run", "echo", "test@example.com", "-o", str(output_path), "--no-redact"]
+            app,
+            ["run", "echo", "test@example.com", "-o", str(output_path), "--no-redact"],
         )
         assert result.exit_code == 0
         assert output_path.exists()
@@ -115,9 +122,7 @@ class TestRenderCommand:
         bundle_path = tmp_path / "test.bugbundle"
         runner.invoke(app, ["run", "echo", "hello", "-o", str(bundle_path)])
 
-        result = runner.invoke(
-            app, ["render", str(bundle_path), "-f", "json", "--llm"]
-        )
+        result = runner.invoke(app, ["render", str(bundle_path), "-f", "json", "--llm"])
         assert result.exit_code == 0
         assert "# Bug Context" in result.stdout
 
@@ -212,9 +217,12 @@ class TestEndToEnd:
             app,
             [
                 "run",
-                "-o", str(bundle_path),
+                "-o",
+                str(bundle_path),
                 "--",
-                "python", "-c", "raise ValueError('test error message')",
+                "python",
+                "-c",
+                "raise ValueError('test error message')",
             ],
         )
         assert run_result.exit_code == 0
@@ -226,4 +234,6 @@ class TestEndToEnd:
 
         render_result = runner.invoke(app, ["render", str(bundle_path)])
         assert render_result.exit_code == 0
-        assert "ValueError" in render_result.stdout or "test error" in render_result.stdout
+        assert (
+            "ValueError" in render_result.stdout or "test error" in render_result.stdout
+        )

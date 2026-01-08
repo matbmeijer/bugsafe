@@ -1,7 +1,5 @@
 """Unit tests for redact/tokenizer.py."""
 
-import pytest
-
 from bugsafe.redact.tokenizer import Tokenizer
 
 
@@ -72,7 +70,7 @@ class TestTokenizer:
         tokenizer.tokenize("secret1", "API_KEY")
         tokenizer.tokenize("secret2", "API_KEY")
         tokenizer.tokenize("password", "PASSWORD")
-        
+
         report = tokenizer.get_report()
         assert report["API_KEY"] == 2
         assert report["PASSWORD"] == 1
@@ -82,7 +80,7 @@ class TestTokenizer:
         tokenizer.tokenize("secret1", "API_KEY")
         tokenizer.tokenize("secret1", "API_KEY")
         tokenizer.tokenize("secret2", "API_KEY")
-        
+
         assert tokenizer.get_total_redactions() == 2
 
     def test_is_token(self):
@@ -97,9 +95,9 @@ class TestTokenizer:
         tokenizer = Tokenizer()
         old_hash = tokenizer.get_salt_hash()
         tokenizer.tokenize("secret", "API_KEY")
-        
+
         tokenizer.reset()
-        
+
         assert tokenizer.get_salt_hash() != old_hash
         assert tokenizer.get_total_redactions() == 0
         assert tokenizer.get_report() == {}
@@ -134,10 +132,10 @@ class TestTokenizerEdgeCases:
     def test_correlation_preserved(self):
         tokenizer = Tokenizer()
         secret = "AKIAIOSFODNN7EXAMPLE"
-        
+
         token1 = tokenizer.tokenize(secret, "AWS_KEY")
         token2 = tokenizer.tokenize(f"key={secret}", "AWS_KEY")
-        
+
         assert secret not in token1
         text = f"Found key: {secret}"
         text = text.replace(secret, token1)

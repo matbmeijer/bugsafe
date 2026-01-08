@@ -185,6 +185,7 @@ class TestJsonExport:
 
         assert isinstance(result, str)
         import json
+
         data = json.loads(result)
         assert "metadata" in data
         assert "capture" in data
@@ -192,6 +193,7 @@ class TestJsonExport:
     def test_to_json_roundtrip(self, sample_bundle: BugBundle):
         json_str = to_json(sample_bundle)
         import json
+
         data = json.loads(json_str)
 
         assert data["capture"]["exit_code"] == 1
@@ -312,8 +314,7 @@ class TestEdgeCases:
 
     def test_very_long_traceback(self):
         frames = [
-            Frame(file=f"file{i}.py", line=i, function=f"func{i}")
-            for i in range(100)
+            Frame(file=f"file{i}.py", line=i, function=f"func{i}") for i in range(100)
         ]
         bundle = BugBundle(
             traceback=Traceback(

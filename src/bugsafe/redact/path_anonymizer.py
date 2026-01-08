@@ -18,9 +18,7 @@ TEMP_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"/run/user/\d+/[^/]+"),
 )
 
-SITE_PACKAGES_PATTERN = re.compile(
-    r"[/\\](?:site-packages|dist-packages)[/\\]"
-)
+SITE_PACKAGES_PATTERN = re.compile(r"[/\\](?:site-packages|dist-packages)[/\\]")
 
 VENV_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"[/\\]\.venv[/\\]lib[/\\]python\d+\.\d+[/\\]"),
@@ -90,9 +88,7 @@ class PathAnonymizer:
             project_str = str(self.project_root)
             result = result.replace(project_str, "<PROJECT>")
             if sys.platform == "win32":
-                result = result.replace(
-                    project_str.replace("/", "\\"), "<PROJECT>"
-                )
+                result = result.replace(project_str.replace("/", "\\"), "<PROJECT>")
 
         if self.anonymize_venv:
             result = self._anonymize_venv(result)
@@ -146,6 +142,7 @@ class PathAnonymizer:
 
     def _anonymize_site_packages(self, text: str) -> str:
         """Mark site-packages paths."""
+
         def replace_site_packages(match: re.Match[str]) -> str:
             sep = match.group(0)[0]
             return f"{sep}<SITE_PACKAGES>{sep}"

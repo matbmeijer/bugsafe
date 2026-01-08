@@ -81,9 +81,7 @@ _HIGH_PRIORITY_PATTERNS: list[Pattern] = [
     ),
     Pattern(
         name="aws_secret_key",
-        regex=_compile(
-            r"(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])"
-        ),
+        regex=_compile(r"(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])"),
         category="AWS_SECRET",
         priority=Priority.HIGH,
         description="AWS Secret Access Key (context-dependent)",
@@ -134,9 +132,7 @@ _HIGH_PRIORITY_PATTERNS: list[Pattern] = [
     ),
     Pattern(
         name="discord_webhook",
-        regex=_compile(
-            r"https://discord(?:app)?\.com/api/webhooks/\d+/[A-Za-z0-9_-]+"
-        ),
+        regex=_compile(r"https://discord(?:app)?\.com/api/webhooks/\d+/[A-Za-z0-9_-]+"),
         category="DISCORD_WEBHOOK",
         priority=Priority.CRITICAL,
         description="Discord Webhook URL",
@@ -227,9 +223,7 @@ _HIGH_PRIORITY_PATTERNS: list[Pattern] = [
 _MEDIUM_PRIORITY_PATTERNS: list[Pattern] = [
     Pattern(
         name="jwt",
-        regex=_compile(
-            r"eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+"
-        ),
+        regex=_compile(r"eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+"),
         category="JWT",
         priority=Priority.HIGH,
         description="JSON Web Token",
@@ -308,9 +302,7 @@ _MEDIUM_PRIORITY_PATTERNS: list[Pattern] = [
     ),
     Pattern(
         name="authorization_header",
-        regex=_compile(
-            r"(?i)authorization[\"'\s:=]+[\"']?([^\s\"'\n]{10,})[\"']?"
-        ),
+        regex=_compile(r"(?i)authorization[\"'\s:=]+[\"']?([^\s\"'\n]{10,})[\"']?"),
         category="AUTH_HEADER",
         priority=Priority.MEDIUM,
         capture_group=1,
@@ -345,9 +337,7 @@ _LOW_PRIORITY_PATTERNS: list[Pattern] = [
     ),
     Pattern(
         name="email",
-        regex=_compile(
-            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"
-        ),
+        regex=_compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
         category="EMAIL",
         priority=Priority.OPTIONAL,
         description="Email Address",

@@ -1,10 +1,6 @@
 """Unit tests for redact/path_anonymizer.py."""
 
-import os
 from pathlib import Path
-from unittest.mock import patch
-
-import pytest
 
 from bugsafe.redact.path_anonymizer import (
     PathAnonymizer,
@@ -44,9 +40,7 @@ class TestPathAnonymizer:
 
     def test_anonymize_temp_macos(self):
         anonymizer = PathAnonymizer()
-        result = anonymizer.anonymize(
-            "/var/folders/abc/xyz/T/pytest-123/test.py"
-        )
+        result = anonymizer.anonymize("/var/folders/abc/xyz/T/pytest-123/test.py")
         assert "<TMPDIR>" in result
 
     def test_anonymize_temp_linux(self):
@@ -136,9 +130,7 @@ class TestCreateDefaultAnonymizer:
         assert isinstance(anonymizer, PathAnonymizer)
 
     def test_with_project_root(self):
-        anonymizer = create_default_anonymizer(
-            project_root=Path("/my/project")
-        )
+        anonymizer = create_default_anonymizer(project_root=Path("/my/project"))
         assert anonymizer.project_root == Path("/my/project")
 
 

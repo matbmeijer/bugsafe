@@ -45,9 +45,7 @@ def to_json(bundle: BugBundle, *, indent: int = 2) -> str:
     Returns:
         JSON string representation.
     """
-    return json.dumps(
-        bundle.to_dict(), indent=indent, default=str, ensure_ascii=False
-    )
+    return json.dumps(bundle.to_dict(), indent=indent, default=str, ensure_ascii=False)
 
 
 def to_llm_context(
@@ -91,9 +89,7 @@ def to_llm_context(
 
     if bundle.capture.stderr and remaining_tokens > 100:
         stderr_budget = min(remaining_tokens // 2, 1000)
-        stderr_truncated, _ = _truncate_to_tokens(
-            bundle.capture.stderr, stderr_budget
-        )
+        stderr_truncated, _ = _truncate_to_tokens(bundle.capture.stderr, stderr_budget)
         stderr_section = f"## stderr\n```\n{stderr_truncated}\n```"
         sections.append(stderr_section)
         remaining_tokens -= _estimate_tokens(stderr_section)

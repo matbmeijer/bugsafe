@@ -19,10 +19,20 @@ MAX_BUNDLE_SIZE = 50 * 1024 * 1024  # 50 MB
 MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024  # 10 MB
 MAX_ATTACHMENTS = 20
 
-ALLOWED_EXTENSIONS = frozenset({
-    ".txt", ".log", ".yaml", ".yml", ".json",
-    ".toml", ".ini", ".cfg", ".md", ".rst",
-})
+ALLOWED_EXTENSIONS = frozenset(
+    {
+        ".txt",
+        ".log",
+        ".yaml",
+        ".yml",
+        ".json",
+        ".toml",
+        ".ini",
+        ".cfg",
+        ".md",
+        ".rst",
+    }
+)
 
 MANIFEST_FILENAME = "manifest.json"
 STDOUT_FILENAME = "stdout.txt"

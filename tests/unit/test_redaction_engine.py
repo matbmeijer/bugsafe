@@ -2,15 +2,12 @@
 
 from pathlib import Path
 
-import pytest
-
 from bugsafe.redact.engine import (
     RedactionEngine,
     RedactionReport,
     create_redaction_engine,
 )
 from bugsafe.redact.patterns import PatternConfig, Priority
-from bugsafe.redact.tokenizer import Tokenizer
 
 
 class TestRedactionReport:
@@ -37,17 +34,17 @@ class TestRedactionReport:
         report.add("s1", "<API_KEY_1>", "API_KEY", "p1")
         report.add("s2", "<API_KEY_2>", "API_KEY", "p1")
         report.add("s3", "<PASSWORD_1>", "PASSWORD", "p2")
-        
+
         assert report.get_total() == 3
         assert report.get_summary() == {"API_KEY": 2, "PASSWORD": 1}
 
     def test_merge_reports(self):
         report1 = RedactionReport()
         report1.add("s1", "<A_1>", "A", "p1")
-        
+
         report2 = RedactionReport()
         report2.add("s2", "<B_1>", "B", "p2")
-        
+
         report1.merge(report2)
         assert report1.get_total() == 2
         assert "A" in report1.get_summary()
@@ -61,7 +58,7 @@ class TestRedactionEngine:
         engine = create_redaction_engine()
         text = "My API key is AKIAIOSFODNN7EXAMPLE"
         result, report = engine.redact(text)
-        
+
         assert "AKIAIOSFODNN7EXAMPLE" not in result
         assert "<AWS_KEY_" in result
         assert report.get_total() > 0
@@ -70,7 +67,7 @@ class TestRedactionEngine:
         engine = create_redaction_engine()
         text = "token: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         result, report = engine.redact(text)
-        
+
         assert "ghp_" not in result
         assert "<GITHUB_TOKEN_" in result
 
@@ -79,14 +76,14 @@ class TestRedactionEngine:
         jwt = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.dGVzdHNpZ25hdHVyZQ"
         text = f"Authorization: Bearer {jwt}"
         result, report = engine.redact(text)
-        
+
         assert jwt not in result
 
     def test_email_redaction(self):
         engine = create_redaction_engine()
         text = "Contact: user@example.com"
         result, report = engine.redact(text)
-        
+
         assert "user@example.com" not in result
         assert "<EMAIL_" in result
 
@@ -95,7 +92,7 @@ class TestRedactionEngine:
         engine = create_redaction_engine(config=config)
         text = "Contact: user@example.com"
         result, report = engine.redact(text)
-        
+
         assert "user@example.com" in result
 
     def test_correlation_preserved(self):
@@ -103,7 +100,7 @@ class TestRedactionEngine:
         secret = "AKIAIOSFODNN7EXAMPLE"
         text = f"Key1: {secret}\nKey2: {secret}"
         result, report = engine.redact(text)
-        
+
         lines = result.split("\n")
         token1 = lines[0].split(": ")[1]
         token2 = lines[1].split(": ")[1]
@@ -127,7 +124,7 @@ class TestRedactionEngine:
         engine.path_anonymizer.home_dir = "/home/testuser"
         text = "File: /home/testuser/project/main.py"
         result, report = engine.redact(text)
-        
+
         assert "/home/testuser" not in result
 
     def test_multiple_patterns(self):
@@ -138,7 +135,7 @@ class TestRedactionEngine:
             "Email: test@example.com"
         )
         result, report = engine.redact(text)
-        
+
         assert "AKIA" not in result
         assert "ghp_" not in result
         assert "@example.com" not in result
@@ -150,7 +147,7 @@ MIIBogIBAAJBALRiMLAhQvbMD...
 -----END RSA PRIVATE KEY-----"""
         text = f"Key:\n{key}"
         result, report = engine.redact(text)
-        
+
         assert "PRIVATE KEY" not in result
         assert "<PRIVATE_KEY_" in result
 
@@ -158,7 +155,7 @@ MIIBogIBAAJBALRiMLAhQvbMD...
         engine = create_redaction_engine()
         text = "DATABASE_URL=postgres://user:pass@host:5432/db"
         result, report = engine.redact(text)
-        
+
         assert "postgres://" not in result
         assert "<CONNECTION_STRING_" in result
 
@@ -171,13 +168,13 @@ class TestRedactionEngineConfig:
         engine = create_redaction_engine(config=config)
         text = "Email: test@example.com"
         result, report = engine.redact(text)
-        
+
         assert "test@example.com" in result
 
     def test_min_priority(self):
         config = PatternConfig(min_priority=Priority.CRITICAL)
         engine = create_redaction_engine(config=config)
-        
+
         text = "IP: 192.168.1.1"
         result, report = engine.redact(text)
         assert "192.168.1.1" in result
@@ -186,7 +183,7 @@ class TestRedactionEngineConfig:
         engine = create_redaction_engine()
         text = "ID: 550e8400-e29b-41d4-a716-446655440000"
         result, report = engine.redact(text)
-        
+
         assert "550e8400" in result
 
     def test_uuid_enabled(self):
@@ -194,7 +191,7 @@ class TestRedactionEngineConfig:
         engine = create_redaction_engine(config=config)
         text = "ID: 550e8400-e29b-41d4-a716-446655440000"
         result, report = engine.redact(text)
-        
+
         assert "550e8400" not in result
 
 

@@ -111,9 +111,7 @@ def read_bundle(path: Path) -> BugBundle:
                 _check_path_safety(name)
 
             if MANIFEST_FILENAME not in zf.namelist():
-                raise BundleCorruptError(
-                    f"Bundle missing {MANIFEST_FILENAME}"
-                )
+                raise BundleCorruptError(f"Bundle missing {MANIFEST_FILENAME}")
 
             manifest_data = zf.read(MANIFEST_FILENAME)
 
@@ -166,7 +164,7 @@ def list_attachments(path: Path) -> list[str]:
         with zipfile.ZipFile(path, "r") as zf:
             prefix = f"{ATTACHMENTS_DIR}/"
             attachments = [
-                name[len(prefix):]
+                name[len(prefix) :]
                 for name in zf.namelist()
                 if name.startswith(prefix) and len(name) > len(prefix)
             ]
@@ -203,9 +201,7 @@ def get_attachment(path: Path, name: str) -> str:
             attachment_path = f"{ATTACHMENTS_DIR}/{name}"
 
             if attachment_path not in zf.namelist():
-                raise AttachmentNotFoundError(
-                    f"Attachment not found: {name}"
-                )
+                raise AttachmentNotFoundError(f"Attachment not found: {name}")
 
             content = zf.read(attachment_path)
             return content.decode("utf-8")

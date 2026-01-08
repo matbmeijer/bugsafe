@@ -112,7 +112,7 @@ def _find_traceback_blocks(text: str) -> list[tuple[int, int]]:
 
     for match in TRACEBACK_HEADER.finditer(text):
         start = match.start()
-        remaining = text[match.end():]
+        remaining = text[match.end() :]
 
         end_pos = _find_traceback_end(remaining)
         end = match.end() + end_pos
@@ -193,13 +193,15 @@ def _parse_frames(text: str) -> tuple[list[Frame], int | None]:
                         else:
                             break
 
-            frames.append(Frame(
-                file=file_path,
-                line=line_num,
-                function=function,
-                code=code,
-                locals=frame_locals,
-            ))
+            frames.append(
+                Frame(
+                    file=file_path,
+                    line=line_num,
+                    function=function,
+                    code=code,
+                    locals=frame_locals,
+                )
+            )
 
         recursion_match = RECURSION_TRUNCATION.match(line)
         if recursion_match:
@@ -258,13 +260,13 @@ def _split_chained_tracebacks(text: str) -> tuple[str, str | None, str | None]:
     context_match = CHAINED_CONTEXT.search(text)
 
     if cause_match:
-        cause_text = text[:cause_match.start()]
-        main_text = text[cause_match.end():]
+        cause_text = text[: cause_match.start()]
+        main_text = text[cause_match.end() :]
         return main_text, cause_text, None
 
     if context_match:
-        context_text = text[:context_match.start()]
-        main_text = text[context_match.end():]
+        context_text = text[: context_match.start()]
+        main_text = text[context_match.end() :]
         return main_text, None, context_text
 
     return text, None, None

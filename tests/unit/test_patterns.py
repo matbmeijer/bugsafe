@@ -1,11 +1,8 @@
 """Unit tests for redact/patterns.py."""
 
-import pytest
-
 from bugsafe.redact.patterns import (
     DEFAULT_PATTERNS,
     HIGH_PRIORITY_PATTERN_NAMES,
-    Pattern,
     PatternConfig,
     Priority,
     create_custom_pattern,

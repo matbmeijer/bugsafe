@@ -27,17 +27,19 @@ def get_config_file() -> Path:
     return get_config_dir() / "config.toml"
 
 
-DEFAULT_ENV_ALLOWLIST = frozenset({
-    "PATH",
-    "VIRTUAL_ENV",
-    "PYTHONPATH",
-    "CONDA_DEFAULT_ENV",
-    "CONDA_PREFIX",
-    "SHELL",
-    "TERM",
-    "LANG",
-    "LC_ALL",
-})
+DEFAULT_ENV_ALLOWLIST = frozenset(
+    {
+        "PATH",
+        "VIRTUAL_ENV",
+        "PYTHONPATH",
+        "CONDA_DEFAULT_ENV",
+        "CONDA_PREFIX",
+        "SHELL",
+        "TERM",
+        "LANG",
+        "LC_ALL",
+    }
+)
 
 DEFAULT_TIMEOUT = 300
 DEFAULT_OUTPUT_FORMAT = "md"

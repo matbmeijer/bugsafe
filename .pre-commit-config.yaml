@@ -1,0 +1,57 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        args: [--unsafe] # Allow custom tags in mkdocs.yml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+        exclude: ^(tests/|docs/)
+      - id: debug-statements
+      - id: check-added-large-files
+        args: [--maxkb=500]
+        exclude: ^uv\.lock$
+      - id: check-merge-conflict
+
+  - repo: https://github.com/hadialqattan/pycln
+    rev: v2.6.0
+    hooks:
+      - id: pycln
+        args: [--config=pyproject.toml]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.0
+    hooks:
+      # Linting with auto-fix (exclude tests from security rules)
+      - id: ruff
+        name: ruff-lint
+        args: [--fix]
+        exclude: ^tests/
+      # Formatting
+      - id: ruff-format
+
+  # Local hooks using uv (ensures consistent environment)
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: uv run mypy src/
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: pip-audit
+        name: pip-audit
+        entry: uv run pip-audit --skip-editable
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: pytest-quick
+        name: pytest-quick
+        entry: uv run pytest tests/unit -x -q --tb=line
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

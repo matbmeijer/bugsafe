@@ -12,9 +12,13 @@ GITLAB_TOKEN = "glpat-xxxxxxxxxxxxxxxxxxxx"
 
 SLACK_BOT_TOKEN = "xoxb-123456789012-1234567890123-abcdefghijklmnopqrstuvwx"
 SLACK_USER_TOKEN = "xoxp-123456789012-1234567890123-abcdefghijklmnopqrstuvwx"
-SLACK_WEBHOOK = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+SLACK_WEBHOOK = (
+    "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+)
 
-DISCORD_WEBHOOK = "https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyz"
+DISCORD_WEBHOOK = (
+    "https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyz"
+)
 
 PRIVATE_KEY_RSA = """-----BEGIN RSA PRIVATE KEY-----
 MIIBogIBAAJBALRiMLAhQvbMD6XMj7pFLqCXe8f1v3pW7m8J7bVn9fEaZlGJ+hTq
@@ -78,14 +82,14 @@ SAMPLE_LOG_WITH_SECRETS = """
 2024-01-15 10:30:50 INFO Server listening on 192.168.1.100:8080
 """
 
-SAMPLE_TRACEBACK_WITH_SECRETS = '''
+SAMPLE_TRACEBACK_WITH_SECRETS = """
 Traceback (most recent call last):
   File "/home/alice/project/main.py", line 25, in connect
     client = boto3.client('s3', aws_access_key_id='AKIAIOSFODNN7EXAMPLE')
   File "/home/alice/.venv/lib/python3.10/site-packages/boto3/session.py", line 100, in client
     return self._session.create_client(...)
 botocore.exceptions.ClientError: AWS key invalid: AKIAIOSFODNN7EXAMPLE
-'''
+"""
 
 SAMPLE_CONFIG_WITH_SECRETS = """
 database:
@@ -93,11 +97,11 @@ database:
   port: 5432
   user: admin
   password: "super_secret_password_123"
-  
+
 api:
   key: "sk_live_4eC39HqLyjWDarjtT1zdp7dc"
   endpoint: https://api.example.com
-  
+
 aws:
   access_key_id: AKIAIOSFODNN7EXAMPLE
   secret_access_key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
