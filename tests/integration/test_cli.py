@@ -1,5 +1,6 @@
 """Integration tests for CLI commands."""
 
+import re
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -7,6 +8,14 @@ from typer.testing import CliRunner
 from bugsafe.cli import app
 
 runner = CliRunner()
+
+# Pattern to strip ANSI escape codes (Rich outputs these on Linux)
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from text."""
+    return ANSI_ESCAPE.sub("", text)
 
 
 class TestCLIHelp:
@@ -29,28 +38,32 @@ class TestCLIHelp:
     def test_run_help(self):
         result = runner.invoke(app, ["run", "--help"])
         assert result.exit_code == 0
-        assert "Command to execute" in result.stdout
-        assert "--timeout" in result.stdout
-        assert "--output" in result.stdout
+        output = strip_ansi(result.stdout)
+        assert "Command to execute" in output
+        assert "--timeout" in output
+        assert "--output" in output
 
     def test_render_help(self):
         result = runner.invoke(app, ["render", "--help"])
         assert result.exit_code == 0
-        assert "bugbundle" in result.stdout
-        assert "--format" in result.stdout
-        assert "--llm" in result.stdout
+        output = strip_ansi(result.stdout)
+        assert "bugbundle" in output
+        assert "--format" in output
+        assert "--llm" in output
 
     def test_inspect_help(self):
         result = runner.invoke(app, ["inspect", "--help"])
         assert result.exit_code == 0
-        assert "bugbundle" in result.stdout
+        output = strip_ansi(result.stdout)
+        assert "bugbundle" in output
 
     def test_config_help(self):
         result = runner.invoke(app, ["config", "--help"])
         assert result.exit_code == 0
-        assert "--show" in result.stdout
-        assert "--path" in result.stdout
-        assert "--init" in result.stdout
+        output = strip_ansi(result.stdout)
+        assert "--show" in output
+        assert "--path" in output
+        assert "--init" in output
 
 
 class TestRunCommand:
