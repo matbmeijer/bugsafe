@@ -110,7 +110,3 @@ nav:
       - Testing: contributing/testing.md
       - Release Process: contributing/release-process.md
   - Changelog: changelog.md
-  - Legacy:
-      - Security (Legacy): SECURITY.md
-      - Patterns (Legacy): PATTERNS.md
-      - Contributing (Legacy): CONTRIBUTING.md
