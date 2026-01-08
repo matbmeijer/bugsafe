@@ -1,0 +1,99 @@
+/* Custom theme colors based on bugsafe logo */
+/* Dark slate: #242937, Green accent: #35a75d */
+
+:root {
+  /* Light mode - custom primary */
+  --md-primary-fg-color: #242937;
+  --md-primary-fg-color--light: #3a4050;
+  --md-primary-fg-color--dark: #1a1f2a;
+  --md-primary-bg-color: #ffffff;
+  --md-primary-bg-color--light: #f5f5f5;
+
+  /* Accent color - green from checkmark */
+  --md-accent-fg-color: #35a75d;
+  --md-accent-fg-color--transparent: rgba(53, 167, 93, 0.1);
+  --md-accent-bg-color: #ffffff;
+  --md-accent-bg-color--light: #f0faf4;
+}
+
+/* Dark mode overrides */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #35a75d;
+  --md-primary-fg-color--light: #4aba72;
+  --md-primary-fg-color--dark: #2d9050;
+  --md-primary-bg-color: #242937;
+  --md-primary-bg-color--light: #2e3444;
+
+  --md-accent-fg-color: #4aba72;
+  --md-accent-fg-color--transparent: rgba(74, 186, 114, 0.1);
+
+  /* Better contrast for dark mode */
+  --md-default-bg-color: #1a1f2a;
+  --md-default-bg-color--light: #242937;
+  --md-default-bg-color--lighter: #2e3444;
+  --md-default-bg-color--lightest: #3a4050;
+}
+
+/* Header styling */
+.md-header {
+  background-color: var(--md-primary-fg-color);
+}
+
+/* Tabs styling */
+.md-tabs {
+  background-color: var(--md-primary-fg-color);
+}
+
+/* Links use accent color */
+.md-typeset a {
+  color: var(--md-accent-fg-color);
+}
+
+.md-typeset a:hover {
+  color: var(--md-primary-fg-color--light);
+}
+
+[data-md-color-scheme="slate"] .md-typeset a:hover {
+  color: var(--md-accent-fg-color);
+}
+
+/* Code blocks styling */
+.md-typeset code {
+  background-color: rgba(36, 41, 55, 0.08);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: rgba(53, 167, 93, 0.15);
+}
+
+/* Navigation active state */
+.md-nav__link--active {
+  color: var(--md-accent-fg-color) !important;
+}
+
+/* Search highlight */
+.md-search-result__meta {
+  color: var(--md-accent-fg-color);
+}
+
+/* Admonition accent */
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-color: var(--md-accent-fg-color);
+}
+
+.md-typeset .note > .admonition-title,
+.md-typeset .note > summary {
+  background-color: var(--md-accent-fg-color--transparent);
+}
+
+/* Button styling */
+.md-typeset .md-button--primary {
+  background-color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+}
+
+.md-typeset .md-button--primary:hover {
+  background-color: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+}
