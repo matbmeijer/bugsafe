@@ -3,6 +3,7 @@ site_description: Safe-to-share crash bundles for humans and LLMs
 site_url: https://matbmeijer.github.io/bugsafe
 repo_url: https://github.com/matbmeijer/bugsafe
 repo_name: matbmeijer/bugsafe
+edit_uri: edit/main/docs/
 
 theme:
   name: material
