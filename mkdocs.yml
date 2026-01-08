@@ -1,0 +1,113 @@
+site_name: bugsafe
+site_description: Safe-to-share crash bundles for humans and LLMs
+site_url: https://matbmeijer.github.io/bugsafe
+repo_url: https://github.com/matbmeijer/bugsafe
+repo_name: matbmeijer/bugsafe
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  logo: assets/logo.svg
+  favicon: assets/favicon-32x32.png
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+  - copy-to-llm
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            docstring_style: google
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  version:
+    provider: mike
+    default: latest
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/matbmeijer/bugsafe
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/bugsafe/
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+      - Your First Bundle: getting-started/first-bundle.md
+  - Guides:
+      - CLI Usage: guides/cli-usage.md
+      - Programmatic API: guides/programmatic-api.md
+      - Custom Patterns: guides/custom-patterns.md
+      - LLM Integration: guides/llm-integration.md
+      - CI/CD Integration: guides/ci-cd-integration.md
+  - Reference:
+      - CLI Reference: reference/cli.md
+      - Redaction Patterns: reference/patterns.md
+      - Configuration: reference/configuration.md
+      - API:
+          - Capture: reference/api/capture.md
+          - Redact: reference/api/redact.md
+          - Bundle: reference/api/bundle.md
+          - Render: reference/api/render.md
+  - Concepts:
+      - How It Works: concepts/how-it-works.md
+      - Security Model: concepts/security-model.md
+      - Bundle Format: concepts/bundle-format.md
+      - Tokenization: concepts/tokenization.md
+  - Contributing:
+      - Development Setup: contributing/development-setup.md
+      - Code Style: contributing/code-style.md
+      - Testing: contributing/testing.md
+      - Release Process: contributing/release-process.md
+  - Changelog: changelog.md
+  - Legacy:
+      - Security (Legacy): SECURITY.md
+      - Patterns (Legacy): PATTERNS.md
+      - Contributing (Legacy): CONTRIBUTING.md

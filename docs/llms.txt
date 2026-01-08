@@ -1,0 +1,44 @@
+# bugsafe
+
+> Safe-to-share crash bundles for humans and LLMs
+
+bugsafe captures Python crashes and creates redacted, shareable bug reports.
+It automatically removes API keys, tokens, passwords, and other secrets while
+preserving the information needed to debug issues.
+
+## Documentation
+
+Full documentation: https://matbmeijer.github.io/bugsafe/
+
+Each page has a "Copy to LLM" button for easy Markdown export.
+
+## Quick Links
+
+- Getting Started: https://matbmeijer.github.io/bugsafe/getting-started/installation/
+- CLI Reference: https://matbmeijer.github.io/bugsafe/reference/cli/
+- API Reference: https://matbmeijer.github.io/bugsafe/reference/api/redact/
+- Redaction Patterns: https://matbmeijer.github.io/bugsafe/reference/patterns/
+
+## Installation
+
+```bash
+pip install bugsafe
+```
+
+## Basic Usage
+
+```bash
+# Capture a crash
+bugsafe run -- python my_script.py
+
+# Render for sharing
+bugsafe render crash.bugbundle
+
+# Optimized for LLMs
+bugsafe render crash.bugbundle --llm
+```
+
+## Source Code
+
+GitHub: https://github.com/matbmeijer/bugsafe
+PyPI: https://pypi.org/project/bugsafe/

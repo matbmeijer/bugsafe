@@ -1,0 +1,75 @@
+name: Deploy Docs
+
+on:
+    push:
+        tags:
+            - "v*"
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Version to deploy (e.g., 0.2.0)"
+                required: true
+                type: string
+            set_latest:
+                description: "Set as latest"
+                required: true
+                type: boolean
+                default: true
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v4
+              with:
+                  version: "latest"
+
+            - name: Set up Python
+              run: uv python install 3.12
+
+            - name: Install dependencies
+              run: uv sync --all-extras
+
+            - name: Configure Git
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            - name: Get version from tag
+              id: version
+              run: |
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                    VERSION="${{ github.event.inputs.version }}"
+                  else
+                    VERSION="${GITHUB_REF#refs/tags/v}"
+                  fi
+                  MINOR_VERSION=$(echo $VERSION | cut -d. -f1,2)
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "minor_version=$MINOR_VERSION" >> $GITHUB_OUTPUT
+
+            - name: Deploy versioned docs
+              run: |
+                  VERSION="${{ steps.version.outputs.minor_version }}"
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.set_latest }}" = "true" ]; then
+                    uv run mike deploy --push --update-aliases $VERSION latest
+                    uv run mike set-default --push latest
+                  elif [ "${{ github.event_name }}" = "push" ]; then
+                    uv run mike deploy --push --update-aliases $VERSION latest
+                    uv run mike set-default --push latest
+                  else
+                    uv run mike deploy --push $VERSION
+                  fi
+
+            - name: Add deploy summary
+              run: |
+                  echo "## 📚 Documentation Deployed" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**Version:** ${{ steps.version.outputs.minor_version }}" >> $GITHUB_STEP_SUMMARY
+                  echo "**URL:** https://matbmeijer.github.io/bugsafe/${{ steps.version.outputs.minor_version }}/" >> $GITHUB_STEP_SUMMARY
