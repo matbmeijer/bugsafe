@@ -33,18 +33,20 @@ class TestPathAnonymizer:
 
     def test_anonymize_project_root(self):
         if sys.platform == "win32":
+            # Windows: use backslashes (native format)
             anonymizer = PathAnonymizer(
-                project_root=Path("C:/Users/alice/myproject"),
-                home_dir="C:/Users/alice",
+                project_root=Path("C:\\Users\\alice\\myproject"),
+                home_dir="C:\\Users\\alice",
             )
-            result = anonymizer.anonymize("C:/Users/alice/myproject/src/main.py")
+            result = anonymizer.anonymize("C:\\Users\\alice\\myproject\\src\\main.py")
+            assert result == "<PROJECT>\\src\\main.py"
         else:
             anonymizer = PathAnonymizer(
                 project_root=Path("/Users/alice/myproject"),
                 home_dir="/Users/alice",
             )
             result = anonymizer.anonymize("/Users/alice/myproject/src/main.py")
-        assert result == "<PROJECT>/src/main.py"
+            assert result == "<PROJECT>/src/main.py"
 
     def test_anonymize_temp_macos(self):
         anonymizer = PathAnonymizer()
