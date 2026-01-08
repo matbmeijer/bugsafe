@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="docs/assets/logo.svg" alt="bugsafe logo" width="200" height="200">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/logo.svg">
+    <img src="docs/assets/logo.svg" alt="bugsafe logo" width="200" height="200">
+  </picture>
 </p>
 
 <h1 align="center">bugsafe</h1>
