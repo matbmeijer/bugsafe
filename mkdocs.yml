@@ -39,7 +39,8 @@ plugins:
   - search
   - minify:
       minify_html: true
-  - copy-to-llm
+  - copy-to-llm:
+      repo_url: "https://raw.githubusercontent.com/matbmeijer/bugsafe/main"
   - mkdocstrings:
       handlers:
         python:
