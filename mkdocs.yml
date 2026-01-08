@@ -34,12 +34,13 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+    - content.action.edit
+    - content.action.view
 
 plugins:
   - search
   - minify:
       minify_html: true
-  - copy-to-llm
   - mkdocstrings:
       handlers:
         python:
