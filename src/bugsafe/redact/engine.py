@@ -109,8 +109,16 @@ class RedactionReport:
 
 @contextmanager
 def _timeout_handler(timeout_ms: int) -> Iterator[None]:
-    """Context manager for pattern matching timeout (Unix only)."""
+    """Context manager for pattern matching timeout (Unix only).
+
+    On Windows, timeout is not supported and patterns run without timeout.
+    """
     if timeout_ms <= 0:
+        yield
+        return
+
+    # SIGALRM and setitimer are Unix-only
+    if not hasattr(signal, "SIGALRM") or not hasattr(signal, "setitimer"):
         yield
         return
 

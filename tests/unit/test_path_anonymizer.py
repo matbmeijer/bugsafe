@@ -1,5 +1,6 @@
 """Unit tests for redact/path_anonymizer.py."""
 
+import sys
 from pathlib import Path
 
 from bugsafe.redact.path_anonymizer import (
@@ -31,11 +32,18 @@ class TestPathAnonymizer:
         assert "alice" not in result
 
     def test_anonymize_project_root(self):
-        anonymizer = PathAnonymizer(
-            project_root=Path("/Users/alice/myproject"),
-            home_dir="/Users/alice",
-        )
-        result = anonymizer.anonymize("/Users/alice/myproject/src/main.py")
+        if sys.platform == "win32":
+            anonymizer = PathAnonymizer(
+                project_root=Path("C:/Users/alice/myproject"),
+                home_dir="C:/Users/alice",
+            )
+            result = anonymizer.anonymize("C:/Users/alice/myproject/src/main.py")
+        else:
+            anonymizer = PathAnonymizer(
+                project_root=Path("/Users/alice/myproject"),
+                home_dir="/Users/alice",
+            )
+            result = anonymizer.anonymize("/Users/alice/myproject/src/main.py")
         assert result == "<PROJECT>/src/main.py"
 
     def test_anonymize_temp_macos(self):
@@ -119,7 +127,8 @@ class TestPathAnonymizerPath:
     def test_anonymize_path_object(self):
         anonymizer = PathAnonymizer(home_dir="/home/alice")
         result = anonymizer.anonymize_path(Path("/home/alice/file.py"))
-        assert result == "~/file.py"
+        # Windows uses backslash in Path, normalize for comparison
+        assert result.replace("\\", "/") == "~/file.py"
 
 
 class TestCreateDefaultAnonymizer:

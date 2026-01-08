@@ -154,11 +154,13 @@ def _normalize_output(text: str, config: CaptureConfig) -> str:
     return text
 
 
-def _terminate_process(proc: subprocess.Popen[bytes], grace_period: float = 5.0) -> int:
+def _terminate_process(
+    proc: subprocess.Popen[bytes], grace_period: float = 5.0
+) -> int | None:
     """Terminate process gracefully, then forcefully if needed.
 
     Returns:
-        Signal number used to terminate.
+        Signal number used to terminate (None on Windows after kill).
     """
     proc.terminate()
     try:
@@ -167,7 +169,8 @@ def _terminate_process(proc: subprocess.Popen[bytes], grace_period: float = 5.0)
     except subprocess.TimeoutExpired:
         proc.kill()
         proc.wait()
-        return signal.SIGKILL
+        # SIGKILL doesn't exist on Windows
+        return getattr(signal, "SIGKILL", None)
 
 
 def run_command(
