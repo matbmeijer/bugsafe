@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "bugsafe",
+  "description": "Safe-to-share crash bundles for humans and LLMs. Automatically redact secrets from Python crash reports.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Linux, macOS, Windows",
+  "programmingLanguage": "Python",
+  "url": "https://matbmeijer.github.io/bugsafe/",
+  "downloadUrl": "https://pypi.org/project/bugsafe/",
+  "softwareVersion": "0.1.0",
+  "author": {
+    "@type": "Person",
+    "name": "Matthias Brenninkmeijer",
+    "url": "https://github.com/matbmeijer"
+  },
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
