@@ -1,5 +1,9 @@
 """Extended tests for command runner module."""
 
+import sys
+
+import pytest
+
 from bugsafe.capture.runner import run_command
 
 
@@ -53,6 +57,10 @@ class TestRunCommandEdgeCases:
 
         assert len(result.stdout) >= 1000
 
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="Windows console encoding (cp1252) cannot handle Unicode characters",
+    )
     def test_unicode_output(self):
         """Handle unicode in command output."""
         result = run_command(["python", "-c", "print('Hello 世界 🌍')"])
