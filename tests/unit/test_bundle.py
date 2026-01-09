@@ -295,6 +295,7 @@ class TestBundleReader:
 
         assert verify_integrity(bundle_path) is True
 
+    @pytest.mark.filterwarnings("ignore:Duplicate name:UserWarning")
     def test_verify_integrity_corrupted(self, tmp_path: Path):
         bundle_path = tmp_path / "test.bugbundle"
         create_bundle(BugBundle(), bundle_path)
@@ -438,3 +439,12 @@ class TestEdgeCases:
 
         with pytest.raises(SecurityError):
             get_attachment(bundle_path, "../etc/passwd")
+
+    def test_url_encoded_path_traversal_sanitized(self, tmp_path: Path):
+        """URL-encoded path traversal attempts must be sanitized."""
+        from bugsafe.bundle.writer import _sanitize_filename
+
+        assert ".." not in _sanitize_filename("%2e%2e/etc/passwd")
+        assert ".." not in _sanitize_filename("..%2Fetc%2Fpasswd")
+        assert "/" not in _sanitize_filename("%2F")
+        assert "\\" not in _sanitize_filename("%5C")

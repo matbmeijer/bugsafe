@@ -1,6 +1,10 @@
 """Redaction module - Deterministic, correlation-preserving secret removal."""
 
-from bugsafe.redact.engine import RedactionEngine, RedactionReport
+from bugsafe.redact.engine import (
+    RedactionEngine,
+    RedactionReport,
+    create_redaction_engine,
+)
 from bugsafe.redact.path_anonymizer import PathAnonymizer
 from bugsafe.redact.patterns import (
     DEFAULT_PATTERNS,
@@ -11,12 +15,13 @@ from bugsafe.redact.patterns import (
 from bugsafe.redact.tokenizer import Tokenizer
 
 __all__ = [
-    "RedactionEngine",
-    "RedactionReport",
+    "DEFAULT_PATTERNS",
     "PathAnonymizer",
-    "Tokenizer",
     "Pattern",
     "PatternConfig",
-    "DEFAULT_PATTERNS",
+    "RedactionEngine",
+    "RedactionReport",
+    "Tokenizer",
+    "create_redaction_engine",
     "get_patterns_by_priority",
 ]

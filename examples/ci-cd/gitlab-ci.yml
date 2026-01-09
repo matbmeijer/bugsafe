@@ -1,0 +1,19 @@
+stages:
+  - test
+
+test:
+  stage: test
+  image: python:3.12-slim
+
+  before_script:
+    - pip install bugsafe
+    - pip install -e .
+
+  script:
+    - bugsafe run -o crash.bugbundle -- pytest tests/ -v
+
+  artifacts:
+    when: on_failure
+    paths:
+      - crash.bugbundle
+    expire_in: 7 days

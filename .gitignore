@@ -48,6 +48,10 @@ coverage.xml
 *.cover
 *.py.cover
 .hypothesis/
+
+# bugsafe output
+.bugsafe/
+*.bugbundle
 .pytest_cache/
 cover/
 
@@ -211,3 +215,5 @@ __marimo__/
 # Internal planning documents
 BUGSAFE_IMPLEMENTATION_PLAN.md
 docs/DOCUMENTATION_PLAN.md
+ADOPTION_STRATEGY.md
+IMPROVEMENT_PLAN.md

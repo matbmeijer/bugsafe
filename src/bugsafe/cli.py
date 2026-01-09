@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+import atexit
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated
 
@@ -12,6 +13,27 @@ from rich.panel import Panel
 from rich.table import Table
 
 from bugsafe import __version__
+
+
+class ExitCode:
+    """Standardized exit codes for CLI commands."""
+
+    SUCCESS = 0
+    GENERAL_ERROR = 1
+    BUNDLE_NOT_FOUND = 2
+    VALIDATION_FAILED = 3
+    SECRETS_FOUND = 4
+    TIMEOUT = 5
+
+
+def _cleanup_partial_bundle(path: Path) -> None:
+    """Remove empty or partial bundle files on interrupt."""
+    try:
+        if path.exists() and path.stat().st_size == 0:
+            path.unlink()
+    except OSError:
+        pass
+
 
 app = typer.Typer(
     name="bugsafe",
@@ -48,16 +70,18 @@ def main(
 def run(
     command: Annotated[
         list[str],
-        typer.Argument(help="Command to execute"),
+        typer.Argument(help="Command to execute (e.g., python my_script.py)"),
     ],
     output: Annotated[
         Path | None,
         typer.Option("--output", "-o", help="Output bundle path"),
     ] = None,
     timeout: Annotated[
-        int,
-        typer.Option("--timeout", "-t", help="Timeout in seconds"),
-    ] = 300,
+        int | None,
+        typer.Option(
+            "--timeout", "-t", help="Timeout in seconds (default: from config or 300)"
+        ),
+    ] = None,
     attach: Annotated[
         list[Path] | None,
         typer.Option("--attach", "-a", help="Files to attach"),
@@ -67,7 +91,14 @@ def run(
         typer.Option("--no-redact", help="Skip redaction"),
     ] = False,
 ) -> None:
-    """Run a command and capture crash information into a bundle."""
+    """Run a command and capture crash information into a bundle.
+
+    Examples:
+        bugsafe run -- python my_script.py
+        bugsafe run -o crash.bugbundle -- pytest tests/
+        bugsafe run --timeout 60 -- ./slow_script.sh
+        bugsafe run -a config.yaml -- python app.py
+    """
     from bugsafe.bundle.schema import (
         BugBundle,
         BundleMetadata,
@@ -83,14 +114,23 @@ def run(
     from bugsafe.capture.runner import CaptureConfig
     from bugsafe.capture.runner import run_command as capture_run
     from bugsafe.capture.traceback import extract_traceback
+    from bugsafe.config import load_config
     from bugsafe.redact.engine import create_redaction_engine
 
+    cfg = load_config()
+    actual_timeout = timeout if timeout is not None else cfg.defaults.timeout
+
     if output is None:
-        output = Path("./bug.bugbundle")
+        if cfg.output.default_output_dir:
+            output = cfg.output.default_output_dir / "bug.bugbundle"
+        else:
+            output = Path("./bug.bugbundle")
+
+    atexit.register(_cleanup_partial_bundle, output)
 
     with console.status("[bold blue]Running command..."):
-        config = CaptureConfig(timeout=timeout)
-        result = capture_run(command, config)
+        capture_config = CaptureConfig(timeout=actual_timeout)
+        result = capture_run(command, capture_config)
 
     with console.status("[bold blue]Collecting environment..."):
         env_config = EnvConfig()
@@ -125,6 +165,8 @@ def run(
         truncated=result.truncated_stdout or result.truncated_stderr,
     )
 
+    atexit.unregister(_cleanup_partial_bundle)
+
     git_info = None
     if env_snapshot.git:
         git_info = GitInfo(
@@ -150,6 +192,7 @@ def run(
     )
 
     redaction_report: dict[str, int] = {}
+    engine = None
     if not no_redact:
         with console.status("[bold blue]Redacting secrets..."):
             engine = create_redaction_engine()
@@ -171,9 +214,9 @@ def run(
 
     bundle = BugBundle(
         metadata=BundleMetadata(
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             bugsafe_version=__version__,
-            redaction_salt_hash=engine.get_salt_hash() if not no_redact else "",
+            redaction_salt_hash=engine.get_salt_hash() if engine else "",
         ),
         capture=capture,
         traceback=tb,
@@ -225,14 +268,24 @@ def render(
         typer.Option("--max-tokens", help="Max tokens for LLM output"),
     ] = 4000,
 ) -> None:
-    """Render a bundle to Markdown or JSON."""
+    """Render a bundle to Markdown or JSON.
+
+    Examples:
+        bugsafe render crash.bugbundle
+        bugsafe render crash.bugbundle -f json
+        bugsafe render crash.bugbundle --llm --max-tokens 8000
+        bugsafe render crash.bugbundle -o report.md
+    """
     from bugsafe.bundle.reader import read_bundle
     from bugsafe.render.json_export import to_json, to_llm_context
     from bugsafe.render.markdown import render_markdown
 
     if not bundle_path.exists():
         console.print(f"[red]Error:[/red] Bundle not found: {bundle_path}")
-        raise typer.Exit(1)
+        console.print(
+            "[dim]Run 'bugsafe run -- <command>' to create a bundle first.[/dim]"
+        )
+        raise typer.Exit(ExitCode.BUNDLE_NOT_FOUND)
 
     bundle = read_bundle(bundle_path)
 
@@ -258,20 +311,27 @@ def inspect(
         typer.Argument(help="Path to .bugbundle file"),
     ],
 ) -> None:
-    """Inspect bundle metadata and contents."""
+    """Inspect bundle metadata and contents.
+
+    Examples:
+        bugsafe inspect crash.bugbundle
+    """
     from bugsafe.bundle.reader import list_attachments, read_bundle, verify_integrity
     from bugsafe.bundle.writer import validate_bundle
 
     if not bundle_path.exists():
         console.print(f"[red]Error:[/red] Bundle not found: {bundle_path}")
-        raise typer.Exit(1)
+        console.print(
+            "[dim]Run 'bugsafe run -- <command>' to create a bundle first.[/dim]"
+        )
+        raise typer.Exit(ExitCode.BUNDLE_NOT_FOUND)
 
     validation = validate_bundle(bundle_path)
     if not validation.valid:
         console.print("[red]Bundle validation failed:[/red]")
         for error in validation.errors:
             console.print(f"  - {error}")
-        raise typer.Exit(1)
+        raise typer.Exit(ExitCode.VALIDATION_FAILED)
 
     bundle = read_bundle(bundle_path)
     integrity = verify_integrity(bundle_path)
@@ -425,3 +485,120 @@ default_format = "md"
         table.add_row("output.default_format", cfg.output.default_format)
 
         console.print(table)
+
+
+@app.command()
+def scan(
+    files: Annotated[
+        list[Path],
+        typer.Argument(help="Files to scan for secrets"),
+    ],
+    quiet: Annotated[
+        bool,
+        typer.Option("--quiet", "-q", help="Only output if secrets found"),
+    ] = False,
+    verbose: Annotated[
+        bool,
+        typer.Option("--verbose", "-v", help="Show skipped files"),
+    ] = False,
+) -> None:
+    """Scan files for secrets. Exit code 4 if secrets found (for pre-commit).
+
+    Examples:
+        bugsafe scan src/*.py
+        bugsafe scan --quiet src/
+        bugsafe scan --verbose config.yaml secrets.env
+    """
+    from bugsafe.redact.engine import create_redaction_engine
+
+    engine = create_redaction_engine()
+    total_secrets = 0
+    files_with_secrets: list[tuple[Path, dict[str, int]]] = []
+
+    for file_path in files:
+        if not file_path.exists():
+            if verbose:
+                console.print(f"[dim]Skipped {file_path}: file not found[/dim]")
+            continue
+
+        if not file_path.is_file():
+            if verbose:
+                console.print(f"[dim]Skipped {file_path}: not a file[/dim]")
+            continue
+
+        try:
+            content = file_path.read_text(encoding="utf-8", errors="ignore")
+        except (OSError, UnicodeDecodeError) as e:
+            if verbose:
+                console.print(f"[dim]Skipped {file_path}: {e}[/dim]")
+            continue
+
+        _, report = engine.redact(content)
+
+        if report.get_total() > 0:
+            files_with_secrets.append((file_path, report.get_summary()))
+            total_secrets += report.get_total()
+
+    if total_secrets > 0:
+        console.print(f"[red]✗ Found {total_secrets} potential secrets[/red]")
+        console.print()
+
+        for file_path, summary in files_with_secrets:
+            console.print(f"[bold]{file_path}[/bold]")
+            for category, count in sorted(summary.items()):
+                console.print(f"  {category}: {count}")
+
+        raise typer.Exit(ExitCode.SECRETS_FOUND)
+
+    if not quiet:
+        console.print(f"[green]✓ No secrets found in {len(files)} files[/green]")
+
+
+@app.command()
+def audit(
+    bundle_path: Annotated[
+        Path,
+        typer.Argument(help="Path to .bugbundle file to audit"),
+    ],
+) -> None:
+    """Verify no secrets remain in a bundle after redaction.
+
+    Examples:
+        bugsafe audit crash.bugbundle
+    """
+    from bugsafe.bundle.reader import read_bundle
+    from bugsafe.redact.engine import create_redaction_engine
+
+    if not bundle_path.exists():
+        console.print(f"[red]Error:[/red] Bundle not found: {bundle_path}")
+        console.print(
+            "[dim]Run 'bugsafe run -- <command>' to create a bundle first.[/dim]"
+        )
+        raise typer.Exit(ExitCode.BUNDLE_NOT_FOUND)
+
+    bundle = read_bundle(bundle_path)
+    engine = create_redaction_engine()
+
+    combined_text = bundle.capture.stdout + "\n" + bundle.capture.stderr
+    leaks = engine.verify_redaction(combined_text)
+
+    if leaks:
+        console.print("[red]✗ Potential secrets detected:[/red]")
+        for pattern_name in leaks:
+            console.print(f"  - {pattern_name}")
+        raise typer.Exit(ExitCode.SECRETS_FOUND)
+
+    console.print("[green]\u2713 No secrets detected in bundle[/green]")
+
+
+@app.command()
+def mcp() -> None:
+    """Start the MCP server for LLM integration (Claude, Cursor, etc.)."""
+    try:
+        from bugsafe.mcp.server import run_server
+    except ImportError:
+        console.print("[red]Error:[/red] MCP support not installed.")
+        console.print("Install with: pip install bugsafe[mcp]")
+        raise typer.Exit(ExitCode.GENERAL_ERROR) from None
+
+    run_server()

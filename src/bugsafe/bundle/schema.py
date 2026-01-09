@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -149,7 +149,7 @@ class BundleMetadata(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     version: str = BUNDLE_VERSION
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     bugsafe_version: str = __version__
     redaction_salt_hash: str = ""
 

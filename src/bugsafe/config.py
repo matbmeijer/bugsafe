@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from dataclasses import dataclass, field
@@ -12,6 +13,8 @@ if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib
+
+logger = logging.getLogger(__name__)
 
 
 def get_config_dir() -> Path:
@@ -125,7 +128,10 @@ class BugsafeConfig:
             with open(path, "rb") as f:
                 data = tomllib.load(f)
             return cls.from_dict(data)
-        except (OSError, tomllib.TOMLDecodeError):
+        except (OSError, tomllib.TOMLDecodeError) as e:
+            logger.warning(
+                "Failed to load config from %s: %s. Using defaults.", path, e
+            )
             return cls()
 
     @classmethod
@@ -148,12 +154,19 @@ class BugsafeConfig:
         else:
             env_allowlist = DEFAULT_ENV_ALLOWLIST
 
+        timeout = defaults_data.get("timeout", DEFAULT_TIMEOUT)
+        if not isinstance(timeout, int) or timeout <= 0:
+            raise ValueError(f"Invalid timeout: {timeout}. Must be a positive integer.")
+
+        max_output_size = defaults_data.get("max_output_size", DEFAULT_MAX_OUTPUT_SIZE)
+        if not isinstance(max_output_size, int) or max_output_size <= 0:
+            msg = f"Invalid max_output_size: {max_output_size}. Must be positive."
+            raise ValueError(msg)
+
         defaults = DefaultsConfig(
             env_allowlist=env_allowlist,
-            timeout=defaults_data.get("timeout", DEFAULT_TIMEOUT),
-            max_output_size=defaults_data.get(
-                "max_output_size", DEFAULT_MAX_OUTPUT_SIZE
-            ),
+            timeout=timeout,
+            max_output_size=max_output_size,
         )
 
         custom_patterns = redaction_data.get("custom_patterns")
@@ -171,8 +184,14 @@ class BugsafeConfig:
         if output_dir:
             output_dir = Path(output_dir).expanduser()
 
+        default_format = output_data.get("default_format", DEFAULT_OUTPUT_FORMAT)
+        if default_format not in ("md", "json"):
+            raise ValueError(
+                f"Invalid format: {default_format}. Must be 'md' or 'json'."
+            )
+
         output = OutputConfig(
-            default_format=output_data.get("default_format", DEFAULT_OUTPUT_FORMAT),
+            default_format=default_format,
             default_output_dir=output_dir,
         )
 
@@ -212,12 +231,32 @@ class BugsafeConfig:
 
 
 def load_config(path: Path | None = None) -> BugsafeConfig:
-    """Load configuration from file.
+    """Load configuration from file with environment variable overrides.
+
+    Environment variables:
+        BUGSAFE_TIMEOUT: Override default timeout (seconds)
+        BUGSAFE_FORMAT: Override default output format (md or json)
 
     Args:
         path: Optional path to config file.
 
     Returns:
-        Loaded configuration.
+        Loaded configuration with env var overrides applied.
     """
-    return BugsafeConfig.load(path)
+    config = BugsafeConfig.load(path)
+
+    if timeout_str := os.environ.get("BUGSAFE_TIMEOUT"):
+        try:
+            timeout = int(timeout_str)
+            if timeout > 0:
+                config.defaults.timeout = timeout
+        except ValueError:
+            logger.warning("Invalid BUGSAFE_TIMEOUT: %s. Ignoring.", timeout_str)
+
+    if fmt := os.environ.get("BUGSAFE_FORMAT"):
+        if fmt in ("md", "json"):
+            config.output.default_format = fmt
+        else:
+            logger.warning("Invalid BUGSAFE_FORMAT: %s. Must be 'md' or 'json'.", fmt)
+
+    return config

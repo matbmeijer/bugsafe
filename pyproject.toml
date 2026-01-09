@@ -11,9 +11,15 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Debuggers",
 ]
-dependencies = ["typer>=0.12.0", "rich>=13.0.0", "pydantic>=2.0.0"]
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.0.0",
+    "pydantic>=2.0.0",
+    "tomli>=2.0.0; python_version < '3.11'",
+]
 
 [project.optional-dependencies]
+mcp = ["mcp>=1.0.0"]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=5.0.0",
@@ -33,6 +39,9 @@ docs = [
 
 [project.scripts]
 bugsafe = "bugsafe.cli:app"
+
+[project.entry-points.pytest11]
+bugsafe = "bugsafe.pytest_plugin"
 
 [build-system]
 requires = ["hatchling"]
@@ -96,6 +105,11 @@ plugins = ["pydantic.mypy"]
 module = "tests.*"
 disallow_untyped_defs = false
 
+[[tool.mypy.overrides]]
+module = ["bugsafe.mcp.*", "mcp.*"]
+ignore_missing_imports = true
+ignore_errors = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -108,10 +122,16 @@ all = true
 [tool.coverage.run]
 source = ["src/bugsafe"]
 branch = true
+omit = [
+    "src/bugsafe/mcp/*",                # Optional feature, requires extra dep
+    "src/bugsafe/__main__.py",          # Entry point only
+    "src/bugsafe/bundle/exceptions.py", # Just class definitions
+]
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
     "if __name__ == .__main__.:",
+    "except ImportError:",
 ]

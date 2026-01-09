@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import re
 import signal
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -23,10 +25,36 @@ if TYPE_CHECKING:
 
 PATTERN_TIMEOUT_MS = 100
 MIN_SECRET_LENGTH = 4
+MAX_PATTERN_LENGTH = 1000
 
 
 class RedactionTimeoutError(Exception):
     """Raised when a pattern match times out."""
+
+
+class PatternComplexityError(ValueError):
+    """Raised when a pattern is too complex."""
+
+
+@lru_cache(maxsize=128)
+def compile_pattern_safely(pattern: str, flags: int = 0) -> re.Pattern[str]:
+    """Compile regex with safety limits to prevent ReDoS.
+
+    Args:
+        pattern: The regex pattern string.
+        flags: Optional regex flags.
+
+    Returns:
+        Compiled regex pattern.
+
+    Raises:
+        PatternComplexityError: If pattern exceeds complexity limits.
+    """
+    if len(pattern) > MAX_PATTERN_LENGTH:
+        raise PatternComplexityError(
+            f"Pattern too complex: {len(pattern)} chars > {MAX_PATTERN_LENGTH} limit"
+        )
+    return re.compile(pattern, flags)
 
 
 @dataclass
@@ -159,6 +187,7 @@ class RedactionEngine:
     config: PatternConfig = field(default_factory=PatternConfig)
     patterns: list[Pattern] = field(default_factory=list)
     timeout_ms: int = PATTERN_TIMEOUT_MS
+    _last_report: RedactionReport = field(default_factory=RedactionReport, repr=False)
 
     def __post_init__(self) -> None:
         """Initialize patterns if not provided."""
@@ -202,6 +231,7 @@ class RedactionEngine:
 
         result = self.path_anonymizer.anonymize(result)
 
+        self._last_report = report
         return result, report
 
     def _should_apply_pattern(self, pattern: Pattern) -> bool:
@@ -309,8 +339,12 @@ class RedactionEngine:
         return self.tokenizer.get_salt_hash()
 
     def get_redaction_summary(self) -> dict[str, int]:
-        """Get summary of redactions from tokenizer."""
-        return self.tokenizer.get_report()
+        """Get summary from last redaction operation.
+
+        Returns:
+            Dictionary mapping category names to redaction counts.
+        """
+        return self._last_report.get_summary()
 
 
 def create_redaction_engine(

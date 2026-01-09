@@ -153,7 +153,7 @@ class TestRenderCommand:
 
     def test_render_not_found(self):
         result = runner.invoke(app, ["render", "nonexistent.bugbundle"])
-        assert result.exit_code == 1
+        assert result.exit_code == 2  # ExitCode.BUNDLE_NOT_FOUND
         assert "not found" in result.stdout
 
 
@@ -172,7 +172,7 @@ class TestInspectCommand:
 
     def test_inspect_not_found(self):
         result = runner.invoke(app, ["inspect", "nonexistent.bugbundle"])
-        assert result.exit_code == 1
+        assert result.exit_code == 2  # ExitCode.BUNDLE_NOT_FOUND
         assert "not found" in result.stdout
 
 

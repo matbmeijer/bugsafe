@@ -50,6 +50,37 @@ test:
       - crash.bugbundle
 ```
 
+## pytest Plugin
+
+Use the built-in pytest plugin for automatic crash capture:
+
+```bash
+# Capture on all tests
+pytest --bugsafe
+
+# Capture only on failure
+pytest --bugsafe-on-fail
+
+# Custom output directory
+pytest --bugsafe-on-fail --bugsafe-output ./crash-reports
+```
+
+The plugin creates bundles in `.bugsafe/` by default.
+
+### In CI
+
+```yaml
+- name: Run tests with pytest plugin
+  run: pytest --bugsafe-on-fail tests/
+
+- name: Upload crash bundles
+  if: failure()
+  uses: actions/upload-artifact@v4
+  with:
+    name: crash-bundles
+    path: .bugsafe/
+```
+
 ## Best Practices
 
 ### 1. Capture Only on Failure

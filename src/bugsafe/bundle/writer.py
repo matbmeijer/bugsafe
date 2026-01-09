@@ -4,16 +4,25 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
+import urllib.parse
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from bugsafe.bundle.exceptions import (
+    AttachmentError,
+    BundleSizeError,
+    BundleWriteError,
+)
 from bugsafe.bundle.schema import BugBundle
 
 if TYPE_CHECKING:
     pass
+
+audit_logger = logging.getLogger("bugsafe.audit")
 
 MAX_BUNDLE_SIZE = 50 * 1024 * 1024  # 50 MB
 MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024  # 10 MB
@@ -41,22 +50,6 @@ CHECKSUM_FILENAME = "checksum.sha256"
 ATTACHMENTS_DIR = "attachments"
 
 
-class BundleError(Exception):
-    """Base exception for bundle errors."""
-
-
-class BundleWriteError(BundleError):
-    """Error writing bundle."""
-
-
-class BundleSizeError(BundleError):
-    """Bundle exceeds size limit."""
-
-
-class AttachmentError(BundleError):
-    """Error with attachment."""
-
-
 @dataclass
 class ValidationResult:
     """Result of bundle validation.
@@ -78,8 +71,14 @@ def _compute_checksum(data: bytes) -> str:
 
 
 def _sanitize_filename(name: str) -> str:
-    """Sanitize filename to prevent path traversal."""
+    """Sanitize filename to prevent path traversal.
+
+    Handles URL-encoded characters, absolute paths, and parent directory
+    references to ensure filenames are safe for ZIP archive inclusion.
+    """
+    name = urllib.parse.unquote(name)
     name = os.path.basename(name)
+    name = name.replace("/", "_").replace("\\", "_")
     name = name.replace("..", "_")
     name = "".join(c if c.isalnum() or c in "._-" else "_" for c in name)
     return name or "unnamed"
@@ -154,6 +153,16 @@ def create_bundle(
 
             if stderr_content:
                 zf.writestr(STDERR_FILENAME, stderr_content)
+
+        redaction_count = (
+            sum(bundle.redaction_report.values()) if bundle.redaction_report else 0
+        )
+        audit_logger.info(
+            "Bundle created: %s (size=%d bytes, redactions=%d)",
+            path,
+            total_size,
+            redaction_count,
+        )
 
     except OSError as e:
         raise BundleWriteError(f"Failed to write bundle: {e}") from e

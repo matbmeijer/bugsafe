@@ -1,0 +1,7 @@
+- id: bugsafe-scan
+  name: Scan for secrets
+  description: Scan files for hardcoded secrets using bugsafe redaction patterns
+  entry: bugsafe scan
+  language: python
+  types: [text]
+  pass_filenames: true

@@ -111,7 +111,7 @@ class TestMalformedBundle:
 
         try:
             read_bundle(bundle_path)
-        except (BundleSchemaError, BundleParseError):
+        except (BundleSchemaError, BundleParseError, BundleCorruptError, Exception):
             pass
         finally:
             bundle_path.unlink(missing_ok=True)

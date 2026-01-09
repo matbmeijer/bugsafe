@@ -68,6 +68,16 @@ jobs:
       - name: Run mypy
         run: uv run mypy src/
 
+      - name: Check version consistency
+        run: |
+          INIT_V=$(grep -oP '__version__ = "\K[^"]+' src/bugsafe/__init__.py)
+          TOML_V=$(grep -oP '^version = "\K[^"]+' pyproject.toml)
+          if [ "$INIT_V" != "$TOML_V" ]; then
+            echo "::error::Version mismatch: __init__.py=$INIT_V, pyproject.toml=$TOML_V"
+            exit 1
+          fi
+          echo "Version check passed: $INIT_V"
+
   security:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,47 @@
+name: Tests with Crash Capture
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install bugsafe
+          pip install -e .
+
+      - name: Run tests with bugsafe
+        id: tests
+        run: bugsafe run -o crash.bugbundle -- pytest tests/ -v
+        continue-on-error: true
+
+      - name: Upload crash bundle
+        if: steps.tests.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-bundle
+          path: crash.bugbundle
+          retention-days: 7
+
+      - name: Add bundle to job summary
+        if: steps.tests.outcome == 'failure'
+        run: |
+          echo "## Crash Report" >> $GITHUB_STEP_SUMMARY
+          bugsafe render crash.bugbundle --llm >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1

@@ -93,8 +93,11 @@ nav:
       - CLI Usage: guides/cli-usage.md
       - Programmatic API: guides/programmatic-api.md
       - Custom Patterns: guides/custom-patterns.md
+      - Examples: guides/examples.md
       - LLM Integration: guides/llm-integration.md
+      - LLM Prompts: guides/llm-prompts.md
       - CI/CD Integration: guides/ci-cd-integration.md
+      - Agent Rules: agent-rules/index.md
   - Reference:
       - CLI Reference: reference/cli.md
       - Redaction Patterns: reference/patterns.md

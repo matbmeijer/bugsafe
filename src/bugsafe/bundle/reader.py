@@ -11,6 +11,16 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from bugsafe.bundle.exceptions import (
+    AttachmentNotFoundError,
+    BundleCorruptError,
+    BundleNotFoundError,
+    BundleParseError,
+    BundleReadError,
+    BundleSchemaError,
+    BundleVersionError,
+    SecurityError,
+)
 from bugsafe.bundle.schema import BUNDLE_VERSION, BugBundle
 
 MANIFEST_FILENAME = "manifest.json"
@@ -20,42 +30,6 @@ CHECKSUM_FILENAME = "checksum.sha256"
 ATTACHMENTS_DIR = "attachments"
 
 MigrationFunc = Callable[[dict[str, Any]], dict[str, Any]]
-
-
-class BundleReadError(Exception):
-    """Base exception for bundle read errors."""
-
-
-class BundleNotFoundError(BundleReadError):
-    """Bundle file not found."""
-
-
-class BundleCorruptError(BundleReadError):
-    """Bundle is corrupted or invalid."""
-
-
-class BundleParseError(BundleReadError):
-    """Error parsing bundle content."""
-
-
-class BundleSchemaError(BundleReadError):
-    """Bundle doesn't match expected schema."""
-
-
-class BundleIntegrityError(BundleReadError):
-    """Bundle checksum verification failed."""
-
-
-class BundleVersionError(BundleReadError):
-    """Unsupported bundle version."""
-
-
-class AttachmentNotFoundError(BundleReadError):
-    """Requested attachment not found."""
-
-
-class SecurityError(BundleReadError):
-    """Security issue detected (e.g., path traversal)."""
 
 
 VERSION_MIGRATIONS: dict[str, MigrationFunc] = {

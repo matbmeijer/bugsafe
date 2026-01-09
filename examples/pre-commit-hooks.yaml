@@ -1,0 +1,35 @@
+# Example pre-commit configuration for bugsafe
+#
+# This file shows how to integrate bugsafe with pre-commit.
+# Copy the relevant sections to your project's .pre-commit-config.yaml
+#
+# For more information, see: https://pre-commit.com/
+
+# To use bugsafe as a pre-commit hook, add this to your .pre-commit-config.yaml:
+repos:
+  - repo: local
+    hooks:
+      # Scan staged files for secrets before committing
+      - id: bugsafe-scan
+        name: bugsafe secret scan
+        entry: bugsafe scan
+        language: system
+        types: [text]
+        description: Scans files for secrets and credentials
+
+      # Alternative: Use uvx to run without installing
+      - id: bugsafe-scan-uvx
+        name: bugsafe secret scan (uvx)
+        entry: uvx bugsafe scan
+        language: system
+        types: [text]
+        description: Scans files for secrets using uvx
+# Example usage in your project:
+#
+# 1. Install pre-commit: pip install pre-commit
+# 2. Copy the hooks above to your .pre-commit-config.yaml
+# 3. Run: pre-commit install
+# 4. Now bugsafe will scan for secrets on every commit
+#
+# To scan all files manually:
+#   pre-commit run bugsafe-scan --all-files
