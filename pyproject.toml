@@ -4,12 +4,43 @@ version = "0.1.0"
 description = "Safe-to-share crash bundles for humans and LLMs"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-keywords = ["debugging", "crash", "redaction", "privacy", "CLI"]
+keywords = [
+    "debugging",
+    "crash-reports",
+    "redaction",
+    "secrets",
+    "privacy",
+    "security",
+    "pii-redaction",
+    "secret-detection",
+    "llm",
+    "ai-debugging",
+    "mcp",
+    "cli",
+    "pytest-plugin",
+    "developer-tools",
+    "bug-reports",
+    "log-sanitization",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
+    "Framework :: Pytest",
     "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Debuggers",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Security",
+    "Topic :: System :: Logging",
+    "Typing :: Typed",
 ]
 dependencies = [
     "typer>=0.12.0",

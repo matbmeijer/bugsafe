@@ -17,7 +17,7 @@
   <a href="https://badge.fury.io/py/bugsafe"><img src="https://badge.fury.io/py/bugsafe.svg" alt="PyPI version"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://matbmeijer.github.io/bugsafe/"><img src="https://img.shields.io/badge/docs-latest-blue.svg" alt="Documentation"></a>
+  <a href="https://matbmeijer.github.io/bugsafe/dev/"><img src="https://img.shields.io/badge/docs-latest-blue.svg" alt="Documentation"></a>
 </p>
 
 ---
@@ -78,16 +78,16 @@ Notice how secrets are replaced with tokens like `<API_KEY_1>` while preserving 
 
 ## Documentation
 
-📚 **[Full Documentation](https://matbmeijer.github.io/bugsafe/)**
+📚 **[Full Documentation](https://matbmeijer.github.io/bugsafe/dev/)**
 
 | Section | Description |
 |---------|-------------|
-| [Getting Started](https://matbmeijer.github.io/bugsafe/getting-started/installation/) | Installation and first bundle |
-| [CLI Reference](https://matbmeijer.github.io/bugsafe/reference/cli/) | Complete command reference |
-| [API Reference](https://matbmeijer.github.io/bugsafe/reference/api/redact/) | Programmatic usage |
-| [Redaction Patterns](https://matbmeijer.github.io/bugsafe/reference/patterns/) | What gets redacted |
-| [Security Model](https://matbmeijer.github.io/bugsafe/concepts/security-model/) | How bugsafe protects secrets |
-| [Configuration](https://matbmeijer.github.io/bugsafe/reference/configuration/) | Config file options |
+| [Getting Started](https://matbmeijer.github.io/bugsafe/dev/getting-started/installation/) | Installation and first bundle |
+| [CLI Reference](https://matbmeijer.github.io/bugsafe/dev/reference/cli/) | Complete command reference |
+| [API Reference](https://matbmeijer.github.io/bugsafe/dev/reference/api/redact/) | Programmatic usage |
+| [Redaction Patterns](https://matbmeijer.github.io/bugsafe/dev/reference/patterns/) | What gets redacted |
+| [Security Model](https://matbmeijer.github.io/bugsafe/dev/concepts/security-model/) | How bugsafe protects secrets |
+| [Configuration](https://matbmeijer.github.io/bugsafe/dev/reference/configuration/) | Config file options |
 
 ## What Gets Redacted
 
@@ -102,7 +102,7 @@ bugsafe automatically detects and redacts:
 | **Private Keys** | RSA, DSA, EC, OpenSSH keys |
 | **Paths** | Home directories, usernames, temp files |
 
-See [Redaction Patterns](https://matbmeijer.github.io/bugsafe/reference/patterns/) for the complete list.
+See [Redaction Patterns](https://matbmeijer.github.io/bugsafe/dev/reference/patterns/) for the complete list.
 
 ## Security
 
@@ -112,11 +112,11 @@ bugsafe is designed to make crash reports safe to share, but:
 - **Custom secrets** may not be detected — add custom patterns if needed
 - **Binary data** is not processed — only text output is redacted
 
-See [Security Model](https://matbmeijer.github.io/bugsafe/concepts/security-model/) for details.
+See [Security Model](https://matbmeijer.github.io/bugsafe/dev/concepts/security-model/) for details.
 
 ## Contributing
 
-Contributions are welcome! See [Contributing Guide](https://matbmeijer.github.io/bugsafe/contributing/development-setup/) for development setup.
+Contributions are welcome! See [Contributing Guide](https://matbmeijer.github.io/bugsafe/dev/contributing/development-setup/) for development setup.
 
 ```bash
 git clone https://github.com/matbmeijer/bugsafe.git
